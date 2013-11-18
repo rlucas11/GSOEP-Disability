@@ -1,23 +1,20 @@
 # -------------------- define paths ------------------------------ #
 
-pathOriginalData <- "~/Documents/Datasets/HILDA10/" # path of original panel data files, ending with "/"
+pathOriginalData <- "~/Documents/Datasets/GSOEP2012/stata/" # path of original panel data files, ending with "/"
 pathWorking <- "../data/" # path where new files will be stored
 
 # -------------------- study characteristics -------------------- #
 
-firstYearOfStudy <- 2001
-lastYearOfStudy <- 2010
+firstYearOfStudy <- 1984
+lastYearOfStudy <- 2011
 startingWave <- 1
 
-masterFile <- "Master_j100c.dta"
-waveLabels <- letters[1:(lastYearOfStudy-firstYearOfStudy+1)] # Wave names as letters
-yearsToInclude <- seq(firstYearOfStudy,lastYearOfStudy) # Years of Study
-yearsToInclude2 <- substr(as.character(yearsToInclude), 3, 4) # Two-digit year for some variable names
-originalDataFile <- "Rperson_$100c.dta"
-idName <- "xwaveid"
-hID <- "hhrhid" # Needs wave prefix
-partnerID <- "hhpxid" # Needs wave prefix; this is equivalent to the partner's cross-wave ID.
+masterFile <- "ppfad.dta"
+idName <- "persnr"
+hID <- "hhnr" # Needs wave prefix
 charsToSub <- "\\$"
+
+# -------------------- list of waves and files -------------------- #
 
 gsoep_prefixes <- c(letters[1:7],letters[7:26],paste("b",letters[1:2],sep=""))
 gsoep_years <- c(1984:1990,1990:2011)
@@ -36,5 +33,28 @@ gsoep_files$gsoep_years <- as.numeric(gsoep_files$gsoep_years)
 ## Provide a matrix with each line specifying a wave and a variable name
 ## Provides either a wide or long file with respondent ID, and all requested waves of a variable.
 ## Sample Year is provided with long files
-get_variable <- function{
-    
+## IMPORTANT: Length of 'variables' must match gsoep_files, even if some entries are missing
+get_variable <- function(variables, newName, wide=FALSE) {
+    master <- read.dta(paste(pathOriginalData, masterFile, sep=""))
+
+    master <- data.frame(master[,c(idName)], stringsAsFactors=FALSE)
+    names(master) <- idName
+    for (i in 1:length(variables)) {
+        if (!is.na(variables[i])) {
+            newDataFileName <- paste(pathOriginalData, gsoep_files[i,2], sep="")
+            newVariableName <- paste(newName, gsoep_files[i,1], sep="")
+            data <- read.dta(newDataFileName,convert.factors=FALSE)
+            data <- data[,c(idName, tolower(variables[i]))]
+            names(data)[2] <- newVariableName
+            master <- merge(master, data, by = idName, all.x=TRUE)
+        }
+    }
+
+    if (wide==FALSE) {
+        master <- melt(master, id.vars=idName)
+        master$wave <- substring(master$variable,length(newName)+1,length(newName)+5)
+        master$variable <- substring(master$variable, 1, length(newName))
+        form <- as.formula(paste(idName, " + wave ~ variable", sep=""))
+        master <- dcast(master, form, value.var="value")
+    }
+}

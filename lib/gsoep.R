@@ -36,24 +36,31 @@ gsoep_files$gsoep_years <- as.numeric(gsoep_files$gsoep_years)
 ## IMPORTANT: Length of 'variables' must match gsoep_files, even if some entries are missing
 get_variable <- function(variables, newName, wide=FALSE) {
     master <- read.dta(paste(pathOriginalData, masterFile, sep=""))
-
     master <- data.frame(master[,c(idName)], stringsAsFactors=FALSE)
     names(master) <- idName
     for (i in 1:length(variables)) {
         if (!is.na(variables[i])) {
             newDataFileName <- paste(pathOriginalData, gsoep_files[i,2], sep="")
-            newVariableName <- paste(newName, gsoep_files[i,1], sep="")
+            newVariableName <- paste(newName, gsoep_files[i,1], sep="-")
             data <- read.dta(newDataFileName,convert.factors=FALSE)
             data <- data[,c(idName, tolower(variables[i]))]
             names(data)[2] <- newVariableName
             master <- merge(master, data, by = idName, all.x=TRUE)
+            if (i==8) {
+                master[,newVariableName] <- master[,paste(newVariableName, "x", sep=".")]
+                master[which(is.na(master[,newVariableName])),newVariableName] <-
+                    master[which(is.na(master[,newVariableName])),paste(newVariableName, "y", sep=".")]
+                drops <- c(paste(newVariableName, c("x","y"), sep="."))
+                master <- master[,!names(master) %in% drops]
+            }
         }
     }
 
     if (wide==FALSE) {
         master <- melt(master, id.vars=idName)
-        master$wave <- substring(master$variable,length(newName)+1,length(newName)+5)
-        master$variable <- substring(master$variable, 1, length(newName))
+        #masterVars <- colsplit(master$variable, "-", c("variable", "wave"))
+        master$wave <- substring(master$variable,nchar(newName)+2,nchar(newName)+5)
+        master$variable <- substring(master$variable, 1, nchar(newName))
         form <- as.formula(paste(idName, " + wave ~ variable", sep=""))
         master <- dcast(master, form, value.var="value")
     }

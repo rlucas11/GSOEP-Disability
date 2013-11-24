@@ -55,7 +55,6 @@ get_variable <- function(variables, newName, wide=FALSE) {
             }
         }
     }
-
     if (wide==FALSE) {
         master <- melt(master, id.vars=idName)
         #masterVars <- colsplit(master$variable, "-", c("variable", "wave"))

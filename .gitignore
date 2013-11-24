@@ -6,4 +6,6 @@
 
 # Datafiles
 *.csv
+*.RData
 data/
+cache/

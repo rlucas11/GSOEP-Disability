@@ -24,7 +24,18 @@ extentVarNames <- c("AP5202","BP7402","CP74B02","DP0602","EP6602","FP8202",NA,NA
                     "BAP9802","BBP10102")
 extentVarNames <- extentVarNames[-10]
 extent <- get_variable(extentVarNames, "extent")
-extentRecodeString <- "-10:-1=NA"
+extentRecodeString <- "-10:-1=NA; 101:hi"
 extent$extent <- iRecode(extent$extent, extentRecodeString)
+extent <- na.omit(extent)
 cache('extent')
 
+# -------------------- find people who became disabled -------------------- #
+notDisabledYear <- firstStatus(dis, "dis", 2, "notDisMin")
+disabledYear <- firstStatus(dis, "dis", 1, "disMin")
+lastDisStatus <- lastStatus(dis, "dis", 2, "notDisMax")
+disabilityCombined <- merge(notDisabledYear, disabledYear, by=idName)
+disabilityCombined <- merge(disabilityCombined, lastDisStatus, by = idName)
+disabilityCombined <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
+                                               disabilityCombined[,"disMin"] &
+                                               disabilityCombined[,"notDisMax"]<
+                                               disabilityCombined[,"disMin"]),]

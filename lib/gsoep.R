@@ -1,4 +1,6 @@
-# -------------------- define paths ------------------------------ #
+
+
+                                        # -------------------- define paths ------------------------------ #
 
 pathOriginalData <- "~/Documents/Datasets/GSOEP2012/stata/" # path of original panel data files, ending with "/"
 pathWorking <- "../data/" # path where new files will be stored
@@ -78,6 +80,14 @@ firstStatus <- function(data, statusVariable, targetStatus, newName=NA) {
     select <- data[which(data[,statusVariable]==targetStatus),]
     min <- aggregate(select[,"wave"], by = list(select[,idName]), min)
     if(is.na(newName)) newName <- paste(statusVariable, "Min", sep="")
+    names(min) <- c(idName, newName)
+    return(min)
+}
+
+lastStatus <- function(data, statusVariable, targetStatus, newName=NA) {
+    select <- data[which(data[,statusVariable]==targetStatus),]
+    min <- aggregate(select[,"wave"], by = list(select[,idName]), max)
+    if(is.na(newName)) newName <- paste(statusVariable, "Max", sep="")
     names(min) <- c(idName, newName)
     return(min)
 }

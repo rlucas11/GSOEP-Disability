@@ -57,10 +57,28 @@ get_variable <- function(variables, newName, wide=FALSE) {
     }
     if (wide==FALSE) {
         master <- melt(master, id.vars=idName)
-        #masterVars <- colsplit(master$variable, "-", c("variable", "wave"))
         master$wave <- substring(master$variable,nchar(newName)+2,nchar(newName)+5)
+        master$wave <- as.numeric(master$wave)
         master$variable <- substring(master$variable, 1, nchar(newName))
         form <- as.formula(paste(idName, " + wave ~ variable", sep=""))
         master <- dcast(master, form, value.var="value")
     }
 }
+
+iRecode <- function (x, rstring) { recode (x, rstring) }
+
+# -------------------- find first year in study -------------------- #
+
+
+    
+# -------------------- identify those who changed status -------------------- #
+# This function takes a long file with id, wave, and a status variable
+# Can be used to find first wave in target or non-target status
+firstStatus <- function(data, statusVariable, targetStatus, newName=NA) {
+    select <- data[which(data[,statusVariable]==targetStatus),]
+    min <- aggregate(select[,"wave"], by = list(select[,idName]), min)
+    if(is.na(newName)) newName <- paste(statusVariable, "Min", sep="")
+    names(min) <- c(idName, newName)
+    return(min)
+}
+

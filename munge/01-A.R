@@ -1,4 +1,4 @@
-# Get Variables for Analysis
+4# Get Variables for Analysis
 lsVarNames <- c("AP6801","BP9301","CP9601","DP9801","EP89","FP108","GP109","GP6401E","HP10901","IP10901",
                 "JP10901","KP10401","LP10401","MP11001","NP11701","OP12301","PP13501","QP14301","RP13501",
                 "SP13501","TP14201","UP14501","VP154","WP142","XP149","YP15501","ZP15701","BAP160","BBP15201")
@@ -16,6 +16,7 @@ disRecodeString <- "-10:-1=NA"
 dis$dis <- iRecode(dis$dis, disRecodeString)
 cache('dis')
 disWide <- dcast(dis, persnr ~ wave)
+cache('disWide')
 
 ## Note: Remove HP770 (East German) because it is a different question than in other waves.
 extentVarNames <- c("AP5202","BP7402","CP74B02","DP0602","EP6602","FP8202",NA,NA,"HP7702","HP77O","IP7802",

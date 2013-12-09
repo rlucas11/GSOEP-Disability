@@ -36,7 +36,7 @@ gsoep_files$gsoep_years <- as.numeric(gsoep_files$gsoep_years)
 ## Provides either a wide or long file with respondent ID, and all requested waves of a variable.
 ## Sample Year is provided with long files
 ## IMPORTANT: Length of 'variables' must match gsoep_files, even if some entries are missing
-get_variable <- function(variables, newName, wide=FALSE) {
+get_variable <- function(variables, newName, wide=FALSE, convertFactors=FALSE) {
     master <- read.dta(paste(pathOriginalData, masterFile, sep=""))
     master <- data.frame(master[,c(idName)], stringsAsFactors=FALSE)
     names(master) <- idName
@@ -44,7 +44,7 @@ get_variable <- function(variables, newName, wide=FALSE) {
         if (!is.na(variables[i])) {
             newDataFileName <- paste(pathOriginalData, gsoep_files[i,2], sep="")
             newVariableName <- paste(newName, gsoep_files[i,1], sep="-")
-            data <- read.dta(newDataFileName,convert.factors=FALSE)
+            data <- read.dta(newDataFileName,convert.factors=convertFactors)
             data <- data[,c(idName, tolower(variables[i]))]
             names(data)[2] <- newVariableName
             master <- merge(master, data, by = idName, all.x=TRUE)
@@ -65,6 +65,7 @@ get_variable <- function(variables, newName, wide=FALSE) {
         form <- as.formula(paste(idName, " + wave ~ variable", sep=""))
         master <- dcast(master, form, value.var="value")
     }
+    return(master)
 }
 
 iRecode <- function (x, rstring) { recode (x, rstring) }

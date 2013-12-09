@@ -36,7 +36,29 @@ disabledYear <- firstStatus(dis, "dis", 1, "disMin")
 lastDisStatus <- lastStatus(dis, "dis", 2, "notDisMax")
 disabilityCombined <- merge(notDisabledYear, disabledYear, by=idName)
 disabilityCombined <- merge(disabilityCombined, lastDisStatus, by = idName)
-disabilityCombined <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
+
+# select those who got disabled
+gotDisabled <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
+                                        disabilityCombined[,"disMin"]),]
+cache('gotDisabled')
+
+# select those who got disabled and stayed disabled
+stayedDisabled <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
                                                disabilityCombined[,"disMin"] &
                                                disabilityCombined[,"notDisMax"]<
                                                disabilityCombined[,"disMin"]),]
+
+# -------------------- wide file for those who got disabled -------------------- #
+gotDisWide <- merge(disWide, gotDisabled, by = idName)
+
+# -------------------- set up transitions with TraMineR -------------------- #
+gotDisWide$seq <- seqconc(gotDisWide[,2:27], void='')
+dis.seq <- seqdef(gotDisWide, 31, labels = c("disabled","notDisabled"))
+transition <- seqetm(dis.seq, method="transition")
+#transition <- transition[1:2,1:2]
+dis.tse <- seqformat(dis.seq, from="STS", to = "TSE", tevent=transition)
+# Number of transitions
+dis.dss <- seqdss(dis.seq)
+
+## Need to find number of transitions using each of two methods, then select those for whom
+## the two methods match. Then use the latter method to find the timing of each transition.

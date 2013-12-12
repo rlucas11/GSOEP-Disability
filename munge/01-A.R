@@ -1,4 +1,4 @@
-4# Get Variables for Analysis
+# Get Variables for Analysis
 lsVarNames <- c("AP6801","BP9301","CP9601","DP9801","EP89","FP108","GP109","GP6401E","HP10901",
                 "IP10901","JP10901","KP10401","LP10401","MP11001","NP11701","OP12301","PP13501",
                 "QP14301","RP13501","SP13501","TP14201","UP14501","VP154","WP142","XP149","YP15501",
@@ -55,11 +55,17 @@ gotDisWide <- merge(disWide, gotDisabled, by = idName)
 # -------------------- set up transitions with TraMineR -------------------- #
 gotDisWide$seq <- seqconc(gotDisWide[,2:27], void='')
 dis.seq <- seqdef(gotDisWide, 31, labels = c("disabled","notDisabled"))
+gotDisWide$dis.seq <- dis.seq
 transition <- seqetm(dis.seq, method="transition")
 #transition <- transition[1:2,1:2]
-dis.tse <- seqformat(dis.seq, from="STS", to = "TSE", tevent=transition)
+dis.tse <- seqformat(gotDisWide[,32], from="STS", to = "TSE", tevent=transition)
 # Number of transitions
+# TraMineR doesn't handle missing data well, so we have to compare two strategies to
+# identify transitions that do not occur around a missing occasion
 dis.dss <- seqdss(dis.seq)
-
-## Need to find number of transitions using each of two methods, then select those for whom
-## the two methods match. Then use the latter method to find the timing of each transition.
+gotDisWide$dis.dss <- dis.dss
+gotDisWide$nTransitions <- seqlength(gotDisWide$dis.dss)-1
+dis.agg <- aggregate(dis.tse$id, by=list(dis.tse$id), FUN=length)
+names(dis.agg) <- c(idName, "dis.agg")
+dis.agg$persnr <- as.integer(dis.agg$persnr)
+gotDisWide <- merge(gotDisWide, dis.agg, by = idName, sort=TRUE)

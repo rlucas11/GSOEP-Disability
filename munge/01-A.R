@@ -1,7 +1,8 @@
 4# Get Variables for Analysis
-lsVarNames <- c("AP6801","BP9301","CP9601","DP9801","EP89","FP108","GP109","GP6401E","HP10901","IP10901",
-                "JP10901","KP10401","LP10401","MP11001","NP11701","OP12301","PP13501","QP14301","RP13501",
-                "SP13501","TP14201","UP14501","VP154","WP142","XP149","YP15501","ZP15701","BAP160","BBP15201")
+lsVarNames <- c("AP6801","BP9301","CP9601","DP9801","EP89","FP108","GP109","GP6401E","HP10901",
+                "IP10901","JP10901","KP10401","LP10401","MP11001","NP11701","OP12301","PP13501",
+                "QP14301","RP13501","SP13501","TP14201","UP14501","VP154","WP142","XP149","YP15501",
+                "ZP15701","BAP160","BBP15201")
 ls <- get_variable(lsVarNames, "ls")
 lsRecodeString <- "-10:-1=NA"
 ls$ls <- iRecode(ls$ls, lsRecodeString)

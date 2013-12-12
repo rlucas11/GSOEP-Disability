@@ -53,12 +53,12 @@ stayedDisabled <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
 gotDisWide <- merge(disWide, gotDisabled, by = idName)
 
 # -------------------- set up transitions with TraMineR -------------------- #
-gotDisWide$seq <- seqconc(gotDisWide[,2:27], void='')
-dis.seq <- seqdef(gotDisWide, 31, labels = c("disabled","notDisabled"))
-gotDisWide$dis.seq <- dis.seq
+#gotDisWide$seq <- seqconc(gotDisWide[,2:27], void='')
+dis.seq <- seqdef(gotDisWide, 2:27, labels = c("disabled","notDisabled"), id=gotDisWide$persnr)
+#gotDisWide$dis.seq <- dis.seq
 transition <- seqetm(dis.seq, method="transition")
 #transition <- transition[1:2,1:2]
-dis.tse <- seqformat(gotDisWide[,32], from="STS", to = "TSE", tevent=transition)
+dis.tse <- seqformat(gotDisWide, 2:27, from="STS", to = "TSE", tevent=transition, id=gotDisWide$persnr)
 # Number of transitions
 # TraMineR doesn't handle missing data well, so we have to compare two strategies to
 # identify transitions that do not occur around a missing occasion

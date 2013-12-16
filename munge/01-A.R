@@ -58,7 +58,7 @@ dis.seq <- seqdef(gotDisWide, 2:27, labels = c("disabled","notDisabled"), id=got
 #gotDisWide$dis.seq <- dis.seq
 transition <- seqetm(dis.seq, method="transition")
 #transition <- transition[1:2,1:2]
-dis.tse <- seqformat(gotDisWide, 2:27, from="STS", to = "TSE", tevent=transition, id=gotDisWide$persnr)
+dis.tse <- seqformat(gotDisWide, 2:27, from="STS", to = "TSE", tevent=transition, id="persnr")
 # Number of transitions
 # TraMineR doesn't handle missing data well, so we have to compare two strategies to
 # identify transitions that do not occur around a missing occasion

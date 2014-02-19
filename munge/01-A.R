@@ -37,6 +37,7 @@ disabledYear <- firstStatus(dis, "dis", 1, "disMin")
 lastDisStatus <- lastStatus(dis, "dis", 2, "notDisMax")
 disabilityCombined <- merge(notDisabledYear, disabledYear, by=idName)
 disabilityCombined <- merge(disabilityCombined, lastDisStatus, by = idName)
+cache('disabilityCombined')
 
 # select those who got disabled
 gotDisabled <- disabilityCombined[which(disabilityCombined[,"notDisMin"]<
@@ -59,13 +60,32 @@ dis.seq <- seqdef(gotDisWide, 2:27, labels = c("disabled","notDisabled"), id=got
 transition <- seqetm(dis.seq, method="transition")
 #transition <- transition[1:2,1:2]
 dis.tse <- seqformat(gotDisWide, 2:27, from="STS", to = "TSE", tevent=transition, id="persnr")
+
+########################################################################
 # Number of transitions
 # TraMineR doesn't handle missing data well, so we have to compare two strategies to
 # identify transitions that do not occur around a missing occasion
+########################################################################
+
+
+# create dss, the simplified representation of the sequence
 dis.dss <- seqdss(dis.seq)
 gotDisWide$dis.dss <- dis.dss
+
+# Identify number of transitions from dss (this should be accurate)
 gotDisWide$nTransitions <- seqlength(gotDisWide$dis.dss)-1
+
+# Identify number of distinct states from tse data (this will miss transitions with missing data)
 dis.agg <- aggregate(dis.tse$id, by=list(dis.tse$id), FUN=length)
 names(dis.agg) <- c(idName, "dis.agg")
 dis.agg$persnr <- as.integer(dis.agg$persnr)
 gotDisWide <- merge(gotDisWide, dis.agg, by = idName, sort=TRUE)
+
+# Find duration of spells
+dis.dur <- seqdur(dis.seq)
+dis.dur.df <- data.frame(dis.dur)
+dis.dur.df$persnr <- row.names(dis.dur.df)
+
+
+gotDisWide <- merge(gotDisWide, dis.dur.df, by="persnr")
+cache('gotDisWide')

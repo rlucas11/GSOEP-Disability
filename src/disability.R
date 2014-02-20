@@ -1,3 +1,6 @@
+# Steps to run analyses: Run these first commands to create basic files and variables. Then
+# Additional analyses can be run separately
+
 disData <- merge(ls, dis, by=c(idName, "wave"))
 disData <- merge(disData, extent, by=c(idName, "wave"), all.x=TRUE)
 
@@ -22,13 +25,13 @@ disData$disIndicator.C <- disData$disIndicator-disData$percentDis
 baseline <- lmer(ls ~ 1 + (1 | persnr), data=disData)
 
 # Model 1 -- Basic MLM without centering
-model1 <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=disData)
+model1a <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=disData)
 
 # Model 2 -- Centered disability + level 2 percentage: Equivalent to fixed effects
-model2 <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=disData)
+model2a <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=disData)
 
-summary(model1)
-summary(model2)
+summary(model1a)
+summary(model2a)
 
 #--------------------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------------------#
@@ -44,26 +47,31 @@ select <- gotDisWide[which(gotDisWide$dis.dss$ST3=="%"&gotDisWide$DUR2>=3),c("pe
 replication <- merge(disData, select, by="persnr")
 replication <- replication[order(replication$persnr, replication$wave),]
 
-# Baseline Model
-baseline <- lmer(ls ~ 1 + (1 | persnr), data=replication)
-
-# Model 1 -- Basic MLM without centering
-model1 <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=replication)
-
-# Model 2 -- Centered disability + level 2 percentage: Equivalent to fixed effects
-model2 <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=replication)
-
-summary(model1)
-summary(model2)
-
 replication$year <- as.numeric(replication$wave)
 replication$linear <- 0
 replication[which(replication$year>replication$disMin), "linear"] <-
     replication[which(replication$year>replication$disMin), "year"] -
     replication[which(replication$year>replication$disMin), "disMin"]
 
+replication$yearBefore <- 0
+replication[which(replication$year==replication$disMin-1),'yearBefore'] <- 1
+
+# Baseline Model
+baseline <- lmer(ls ~ 1 + (1 | persnr), data=replication)
+
+# Model 1 -- Basic MLM without centering
+model1 <- lmer(ls ~ yearBefore + disIndicator + (1 + disIndicator | persnr), data=replication)
+
+# Model 2 -- Centered disability + level 2 percentage: Equivalent to fixed effects
+model2 <- lmer(ls ~ yearBefore + disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=replication)
+
+summary(model1)
+summary(model2)
+
+
+
 # Model3 -- Basic MLM without centering plus linear
-model3 <- lmer(ls ~ disIndicator + linear + (1 + disIndicator + linear | persnr), data=replication)
+model3 <- lmer(ls ~ yearBefore + disIndicator + linear + (1 + disIndicator + linear | persnr), data=replication)
 summary(model3)
 
 # Model4 -- MLM with centering
@@ -73,7 +81,7 @@ names(disDataAgg2) <- c("persnr", "meanLinear")
 replication <- merge(replication, disDataAgg2, by="persnr")
 replication$linear.C <- replication$linear-replication$meanLinear
 
-model4 <- lmer(ls ~ disIndicator.C + linear.C + percentDis + meanLinear + (1 + disIndicator.C + linear.C | persnr), data=replication)
+model4 <- lmer(ls ~ yearBefore + disIndicator.C + linear.C + percentDis + meanLinear + (1 + disIndicator.C + linear.C | persnr), data=replication)
 summary(model4)
 
 
@@ -101,18 +109,21 @@ comparison[which(comparison$year>comparison$disMin&comparison$year<=comparison$s
     comparison[which(comparison$year>comparison$disMin&comparison$year<=comparison$spell1End), "year"] -
     comparison[which(comparison$year>comparison$disMin&comparison$year<=comparison$spell1End), "disMin"]
 
+comparison$yearBefore <- 0
+comparison[which(comparison$year==comparison$disMin-1),'yearBefore'] <- 1
+
 
 # Model 1 -- Basic MLM without centering
-model1c <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=comparison)
+model1c <- lmer(ls ~ yearBefore + disIndicator + (1 + disIndicator | persnr), data=comparison)
 summary(model1c)
 
 # Model 2 -- Centered disability + level 2 percentage: Equivalent to fixed effects
-model2 <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=comparison)
+model2c <- lmer(ls ~ yearBefore + disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=comparison)
 summary(model2c)
 
 
 # Model3 -- Basic MLM without centering plus linear
-model3c <- lmer(ls ~ disIndicator + linear + (1 + disIndicator + linear | persnr), data=comparison)
+model3c <- lmer(ls ~ yearBefore + disIndicator + linear + (1 + disIndicator + linear | persnr), data=comparison)
 summary(model3c)
 
 # Model4 -- MLM with centering

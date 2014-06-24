@@ -1,7 +1,7 @@
 GSOEP-Disability
 ================
 
-This goal of this project is to clarify the discrepancies between two papers that examine the effect of disability on life satisfaction using longitudinal data from the GSOEP. Specifically, I test whether differnt analytic strategies (Fixed Effects Models versus Multilevel modeling) are responsible for these discrepancies. 
+This goal of this project is to clarify the discrepancies between two papers that examine the effect of disability on life satisfaction using longitudinal data from the GSOEP. Specifically, I test whether different analytic strategies (fixed effects models versus multilevel modeling) are responsible for these discrepancies. 
 
 ## Functions
 

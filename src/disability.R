@@ -25,13 +25,22 @@ disData$disIndicator.C <- disData$disIndicator-disData$percentDis
 baseline <- lmer(ls ~ 1 + (1 | persnr), data=disData)
 
 # Model 1 -- Basic MLM without centering
-model1a <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=disData)
+model1a <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=disData) 
+test <- lmer(ls ~ disIndicator + (1 + disIndicator | persnr), data=disData,
+             control=lmerControl(optimizer="Nelder_Mead"))
 
 # Model 2 -- Centered disability + level 2 percentage: Equivalent to fixed effects
 model2a <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=disData)
+test2 <- lmer(ls ~ disIndicator.C + percentDis + (1 + disIndicator.C | persnr), data=disData,
+              control=lmerControl(optimizer="Nelder_Mead"))
 
 summary(model1a)
 summary(model2a)
+
+# Models get warnings about lack of convergence. The following is another test that can be run;
+# if values are lower than .001, things are okay.
+relgrad <- with(model2a@optinfo$derivs,solve(Hessian,gradient))
+max(abs(relgrad))
 
 #--------------------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------------------#

@@ -1,6 +1,6 @@
 
 
-                                        # -------------------- define paths ------------------------------ #
+# -------------------- define paths ------------------------------ #
 
 pathOriginalData <- "~/Documents/Datasets/GSOEP2012/stata/" # path of original panel data files, ending with "/"
 pathWorking <- "../data/" # path where new files will be stored
